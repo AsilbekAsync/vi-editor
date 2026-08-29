@@ -1,77 +1,112 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 import {
-  Bold, Italic, Underline, Strikethrough,
-  List, ListOrdered, Link, Image, Table,
-  Sigma, Undo, Redo
-} from 'lucide-vue-next'
-import { useLabels } from '../composables/useLabels'
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  List,
+  ListOrdered,
+  Link,
+  Image,
+  Table,
+  Sigma,
+  Undo,
+  Redo,
+} from "lucide-vue-next";
+import { useLabels } from "../composables/useLabels";
 
-const labels = useLabels()
+const labels = useLabels();
 
 const props = defineProps<{
-  activeFormats: Record<string, any>
-  tools?: string[]
-}>()
+  activeFormats: Record<string, any>;
+  tools?: string[];
+}>();
 
 const emit = defineEmits<{
-  (e: 'command', command: string, value?: string): void
-  (e: 'formatBlock', tag: string): void
-  (e: 'openModal', type: string): void
-  (e: 'undo'): void
-  (e: 'redo'): void
-}>()
+  (e: "command", command: string, value?: string): void;
+  (e: "formatBlock", tag: string): void;
+  (e: "openModal", type: string): void;
+  (e: "undo"): void;
+  (e: "redo"): void;
+}>();
 
-const isActive = (format: string) => !!props.activeFormats[format]
+const isActive = (format: string) => !!props.activeFormats[format];
 
 const currentHeading = computed(() => {
-  const block = props.activeFormats.formatBlock
-  if (block && block.toLowerCase().includes('h1')) return 'H1'
-  if (block && block.toLowerCase().includes('h2')) return 'H2'
-  if (block && block.toLowerCase().includes('h3')) return 'H3'
-  if (block && block.toLowerCase().includes('h4')) return 'H4'
-  if (block && block.toLowerCase().includes('h5')) return 'H5'
-  if (block && block.toLowerCase().includes('h6')) return 'H6'
-  return 'P'
-})
+  const block = props.activeFormats.formatBlock;
+  if (block && block.toLowerCase().includes("h1")) return "H1";
+  if (block && block.toLowerCase().includes("h2")) return "H2";
+  if (block && block.toLowerCase().includes("h3")) return "H3";
+  if (block && block.toLowerCase().includes("h4")) return "H4";
+  if (block && block.toLowerCase().includes("h5")) return "H5";
+  if (block && block.toLowerCase().includes("h6")) return "H6";
+  return "P";
+});
 
 const onHeadingChange = (e: Event) => {
-  const target = e.target as HTMLSelectElement
-  emit('formatBlock', target.value)
-}
+  const target = e.target as HTMLSelectElement;
+  emit("formatBlock", target.value);
+};
 
-const defaultTools = ['headings', '|', 'bold', 'italic', 'underline', 'strikeThrough', '|', 'ul', 'ol', '|', 'link', 'image', 'table', 'formula', '|', 'undo', 'redo']
-const computedTools = computed(() => props.tools || defaultTools)
+const defaultTools = [
+  "headings",
+  "|",
+  "bold",
+  "italic",
+  "underline",
+  "strikeThrough",
+  "|",
+  "ul",
+  "ol",
+  "|",
+  "link",
+  "image",
+  "table",
+  "formula",
+  "|",
+  "undo",
+  "redo",
+];
+const computedTools = computed(() => props.tools || defaultTools);
 
 // Split tools into groups by '|'
 const toolGroups = computed(() => {
-  const groups: string[][] = []
-  let currentGroup: string[] = []
-  
+  const groups: string[][] = [];
+  let currentGroup: string[] = [];
+
   for (const tool of computedTools.value) {
-    if (tool === '|') {
+    if (tool === "|") {
       if (currentGroup.length > 0) {
-        groups.push(currentGroup)
-        currentGroup = []
+        groups.push(currentGroup);
+        currentGroup = [];
       }
     } else {
-      currentGroup.push(tool)
+      currentGroup.push(tool);
     }
   }
   if (currentGroup.length > 0) {
-    groups.push(currentGroup)
+    groups.push(currentGroup);
   }
-  return groups
-})
+  return groups;
+});
 </script>
 
 <template>
   <div class="vi-toolbar">
-    <template v-for="(group, groupIndex) in toolGroups" :key="'group-' + groupIndex">
+    <template
+      v-for="(group, groupIndex) in toolGroups"
+      :key="'group-' + groupIndex"
+    >
       <div class="toolbar-group">
         <template v-for="tool in group" :key="tool">
           <!-- Headings -->
-          <select v-if="tool === 'headings'" class="heading-select" @change="onHeadingChange" :value="currentHeading">
+          <select
+            v-if="tool === 'headings'"
+            class="heading-select"
+            @change="onHeadingChange"
+            :value="currentHeading"
+          >
             <option value="P">{{ labels.toolbar.p }}</option>
             <option value="H1">{{ labels.toolbar.h1 }}</option>
             <option value="H2">{{ labels.toolbar.h2 }}</option>
@@ -82,28 +117,134 @@ const toolGroups = computed(() => {
           </select>
 
           <!-- Formatting -->
-          <button v-else-if="tool === 'bold'" type="button" class="toolbar-btn" :class="{ active: isActive('bold') }" @click="emit('command', 'bold')" :title="labels.toolbar.bold"><Bold :size="18" /></button>
-          <button v-else-if="tool === 'italic'" type="button" class="toolbar-btn" :class="{ active: isActive('italic') }" @click="emit('command', 'italic')" :title="labels.toolbar.italic"><Italic :size="18" /></button>
-          <button v-else-if="tool === 'underline'" type="button" class="toolbar-btn" :class="{ active: isActive('underline') }" @click="emit('command', 'underline')" :title="labels.toolbar.underline"><Underline :size="18" /></button>
-          <button v-else-if="tool === 'strikeThrough'" type="button" class="toolbar-btn" :class="{ active: isActive('strikeThrough') }" @click="emit('command', 'strikeThrough')" :title="labels.toolbar.strikeThrough"><Strikethrough :size="18" /></button>
+          <button
+            v-else-if="tool === 'bold'"
+            type="button"
+            class="toolbar-btn"
+            :class="{ active: isActive('bold') }"
+            @click="emit('command', 'bold')"
+            :title="labels.toolbar.bold"
+          >
+            <Bold :size="18" />
+          </button>
+          <button
+            v-else-if="tool === 'italic'"
+            type="button"
+            class="toolbar-btn"
+            :class="{ active: isActive('italic') }"
+            @click="emit('command', 'italic')"
+            :title="labels.toolbar.italic"
+          >
+            <Italic :size="18" />
+          </button>
+          <button
+            v-else-if="tool === 'underline'"
+            type="button"
+            class="toolbar-btn"
+            :class="{ active: isActive('underline') }"
+            @click="emit('command', 'underline')"
+            :title="labels.toolbar.underline"
+          >
+            <Underline :size="18" />
+          </button>
+          <button
+            v-else-if="tool === 'strikeThrough'"
+            type="button"
+            class="toolbar-btn"
+            :class="{ active: isActive('strikeThrough') }"
+            @click="emit('command', 'strikeThrough')"
+            :title="labels.toolbar.strikeThrough"
+          >
+            <Strikethrough :size="18" />
+          </button>
 
           <!-- Lists -->
-          <button v-else-if="tool === 'ul'" type="button" class="toolbar-btn" :class="{ active: isActive('insertUnorderedList') }" @click="emit('command', 'insertUnorderedList')" :title="labels.toolbar.ul"><List :size="18" /></button>
-          <button v-else-if="tool === 'ol'" type="button" class="toolbar-btn" :class="{ active: isActive('insertOrderedList') }" @click="emit('command', 'insertOrderedList')" :title="labels.toolbar.ol"><ListOrdered :size="18" /></button>
+          <button
+            v-else-if="tool === 'ul'"
+            type="button"
+            class="toolbar-btn"
+            :class="{ active: isActive('insertUnorderedList') }"
+            @click="emit('command', 'insertUnorderedList')"
+            :title="labels.toolbar.ul"
+          >
+            <List :size="18" />
+          </button>
+          <button
+            v-else-if="tool === 'ol'"
+            type="button"
+            class="toolbar-btn"
+            :class="{ active: isActive('insertOrderedList') }"
+            @click="emit('command', 'insertOrderedList')"
+            :title="labels.toolbar.ol"
+          >
+            <ListOrdered :size="18" />
+          </button>
 
           <!-- Modals -->
-          <button v-else-if="tool === 'link'" type="button" class="toolbar-btn" @click="emit('openModal', 'link')" :title="labels.toolbar.link"><Link :size="18" /></button>
-          <button v-else-if="tool === 'image'" type="button" class="toolbar-btn" @click="emit('openModal', 'image')" :title="labels.toolbar.image"><Image :size="18" /></button>
-          <button v-else-if="tool === 'table'" type="button" class="toolbar-btn" @click="emit('openModal', 'table')" :title="labels.toolbar.table"><Table :size="18" /></button>
-          <button v-else-if="tool === 'formula'" type="button" class="toolbar-btn" @click="emit('openModal', 'formula')" :title="labels.toolbar.formula"><Sigma :size="18" /></button>
+          <button
+            v-else-if="tool === 'link'"
+            type="button"
+            class="toolbar-btn"
+            @click="emit('openModal', 'link')"
+            :title="labels.toolbar.link"
+          >
+            <Link :size="18" />
+          </button>
+          <button
+            v-else-if="tool === 'image'"
+            type="button"
+            class="toolbar-btn"
+            @click="emit('openModal', 'image')"
+            :title="labels.toolbar.image"
+          >
+            <Image :size="18" />
+          </button>
+          <button
+            v-else-if="tool === 'table'"
+            type="button"
+            class="toolbar-btn"
+            @click="emit('openModal', 'table')"
+            :title="labels.toolbar.table"
+          >
+            <Table :size="18" />
+          </button>
+          <button
+            v-else-if="tool === 'formula'"
+            type="button"
+            class="toolbar-btn"
+            @click="emit('openModal', 'formula')"
+            :title="labels.toolbar.formula"
+          >
+            <Sigma :size="18" />
+          </button>
 
           <!-- History -->
-          <button v-else-if="tool === 'undo'" type="button" class="toolbar-btn" @click="emit('undo')" :title="labels.toolbar.undo"><Undo :size="18" /></button>
-          <button v-else-if="tool === 'redo'" type="button" class="toolbar-btn" @click="emit('redo')" :title="labels.toolbar.redo"><Redo :size="18" /></button>
+          <button
+            v-else-if="tool === 'undo'"
+            type="button"
+            class="toolbar-btn"
+            @click="emit('undo')"
+            :title="labels.toolbar.undo"
+          >
+            <Undo :size="18" />
+          </button>
+          <button
+            v-else-if="tool === 'redo'"
+            type="button"
+            class="toolbar-btn"
+            @click="emit('redo')"
+            :title="labels.toolbar.redo"
+          >
+            <Redo :size="18" />
+          </button>
         </template>
       </div>
-      
-      <div v-if="groupIndex < toolGroups.length - 1" class="toolbar-divider" :key="'div-' + groupIndex"></div>
+
+      <div
+        v-if="groupIndex < toolGroups.length - 1"
+        class="toolbar-divider"
+        :key="'div-' + groupIndex"
+      ></div>
     </template>
   </div>
 </template>
